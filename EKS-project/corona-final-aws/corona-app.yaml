@@ -1,0 +1,43 @@
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: corona-map
+  labels:
+    app: corona-map
+spec:
+  selector:
+    app: corona-map
+  ports:
+  - port: 5001
+    targetPort: 5001
+    protocol: TCP
+  type: NodePort
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: corona-map
+spec:
+  selector:
+    matchLabels:
+      app: corona-map
+  template:
+    metadata:
+      labels:
+        app: corona-map
+    spec:
+      containers:
+      - name: corona-map
+        image: sosinnmi2/coronamap:1.0
+        env:
+          - name: MYSQL_SERVICE_IP
+            value: 10.100.100.100
+        ports:
+        - name: corona-map-port
+          containerPort: 5001
+          

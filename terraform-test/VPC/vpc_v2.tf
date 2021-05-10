@@ -132,6 +132,9 @@ resource "aws_security_group" "eks_test_sg_1" {
       cidr_blocks = [ "0.0.0.0/8" ]
     } ]
 
+    tags = {
+      Name = "sg_4_worker_group_mgmt"
+    }
 
 }
 

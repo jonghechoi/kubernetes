@@ -2,6 +2,7 @@
 /*========= VPC =========*/
 provider "aws" {
     region = "ap-northeast-2"
+  
 }
 
 resource "aws_vpc" "eks_test_vpc2" {

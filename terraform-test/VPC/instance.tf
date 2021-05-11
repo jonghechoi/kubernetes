@@ -2,7 +2,7 @@
 /*========= Bastion Host Security Group =========*/
 resource "aws_security_group" "bastion_sg" {
   name = "bastion"
-  vpc_id = module.vpc.aws_vpc_id
+  vpc_id = aws_vpc.eks_test_vpc2.id
 
   ingress {
     from_port = 22
@@ -82,25 +82,30 @@ EOF
 
 }
 
-resource "aws_iam_role_policy" "iam_role_policy_attachment" {
-    role = aws_iam_role.iam_role.name
-    policy = data.aws_iam_policy_document.execute-api.json
-}
+# resource "aws_iam_role_policy" "iam_role_policy_attachment" {
+#     role = aws_iam_role.iam_role.name
+#     policy = data.aws_iam_policy_document.execute-api.json
+# }
 
 resource "aws_iam_role_policy" "bastion_iam_role_policy" {
-    statement {
-     sid = "all"
-     actions = [
-       "*"
-     ]
-     resources = [
-       "*"
-     ]
-   }
-
-   tags = {
-     Name = "bastion_iam_role_policy_all"
-   }
+    name   = "iam_role_policy_4_bastion"
+    role   = aws_iam_role.iam_role.id
+    policy = <<EOF
+{ 
+  "Version": "2012-10-17",   
+  "Statement" : [
+    {
+      "Action" : [
+        "*"
+      ],
+      "Resource" : [
+        "*"
+      ],
+      "Effect" : "Allow"
+    } 
+  ]
+} 
+EOF   
 }
 
 /*========= IAM instance profile =========*/

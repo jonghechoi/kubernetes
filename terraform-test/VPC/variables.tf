@@ -14,3 +14,11 @@ variable "pri_subnet_cidr" {
 variable "availability_zone" {
     type = list(string)
 }
+
+variable "cluster_name" {
+    type = string
+}
+
+variable "region" {
+    type = string
+}

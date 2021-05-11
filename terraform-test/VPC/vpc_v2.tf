@@ -122,15 +122,14 @@ resource "aws_security_group" "eks_test_sg_1" {
     name_prefix = "worker_group_mgmt_one"
     vpc_id = aws_vpc.eks_test_vpc2.id
 
-    ingress = [ 
-    {
+    ingress  {
       description = "value"
       from_port = 22
       to_port   = 22
       protocol  = "tcp"
       
       cidr_blocks = [ "0.0.0.0/8" ]
-    } ]
+    }
 
     tags = {
       Name = "sg_4_worker_group_mgmt"
@@ -152,7 +151,7 @@ module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name    = var.cluster_name
   cluster_version = "1.17"
-  subnets         = module.vpc.private_subnets
+  subnets         = aws_subnet.eks_pri_subnet.*.id
   version = "12.2.0"
   cluster_create_timeout = "1h"
   cluster_endpoint_private_access = true 

@@ -1,13 +1,37 @@
 
-/*========= Instance =========*/
-resource "aws_instance" "instance_4_control" {
-  ami                         = "ami-0ba348d1c903e5d48"
-  instance_type               = "t2.micro"
-  iam_instance_profile        = aws_iam_instance_profile.hello.name
-  subnet_id                   = aws_subnet.eks_pub_subnet[0].id
+/*========= Bastion Host Security Group =========*/
+resource "aws_security_group" "bastion_sg" {
+  name = "bastion"
+  vpc_id = module.vpc.aws_vpc_id
+
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    "Name" = "EKS-bastion-sg"
+  }
+}
+
+resource "aws_instance" "bastion_host" {
+  ami                   = "ami-0ba348d1c903e5d48"
+  instance_type         = "t2.micro"
+  iam_instance_profile  = aws_iam_instance_profile.hello.name
+  subnet_id             = aws_subnet.eks_pub_subnet[0].id
+  key_name              = aws_key_pair.terraform_key.id
   # associate_public_ip_address = true
   
-  security_groups = [ "${aws_security_group.eks_test_sg_1.id}" ]
+  vpc_security_group_ids = [ aws_security_group.bastion_sg.id ]
   
   provisioner "file" {
     source      = "./script/script_file.sh}"
@@ -21,25 +45,17 @@ resource "aws_instance" "instance_4_control" {
     ]
   }
 
-  # network_interface {
-  #   network_interface_id = aws_network_interface.network_interface.id
-  #   device_index = 0
-  # }
-
   tags = {
-      Name = "instance_4_control"
+      Name = "bastion_host_4_eks"
   }
 }
 
 
-/*========= Instance Network =========*/
-# resource "aws_network_interface" "network_interface" {
-#     subnet_id = aws_subnet.eks_pub_subnet[0].id
-
-#     tags = {
-#       Name = "network_interface_4_control_instance"
-#     }
-# }
+/*========= Bastion Host Key-pair =========*/
+resource "aws_key_pair" "terraform_key" {
+  key_name = "ec2-terraform-test"
+  public_key = "${file("./ec2-terraform-test.pub")}"
+}
 
 
 resource "aws_iam_role" "iam_role" {
@@ -71,7 +87,7 @@ resource "aws_iam_role_policy" "iam_role_policy_attachment" {
     policy = data.aws_iam_policy_document.execute-api.json
 }
 
-data "aws_iam_policy_document" "execute-api" {
+resource "aws_iam_role_policy" "bastion_iam_role_policy" {
     statement {
      sid = "all"
      actions = [
@@ -80,6 +96,10 @@ data "aws_iam_policy_document" "execute-api" {
      resources = [
        "*"
      ]
+   }
+
+   tags = {
+     Name = "bastion_iam_role_policy_all"
    }
 }
 

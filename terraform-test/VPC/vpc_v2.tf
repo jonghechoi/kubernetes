@@ -148,10 +148,6 @@ data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_id
 }
 
-provider "kubernetes" {
-
-}
-
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name    = var.cluster_name

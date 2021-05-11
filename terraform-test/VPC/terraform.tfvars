@@ -7,3 +7,6 @@ pri_subnet_cidr = ["192.168.10.0/24", "192.168.11.0/24"]
 
 availability_zone = ["ap-northeast-2a", "ap-northeast-2c"]
 
+region = "ap-northeast-2"
+
+cluster_name = "eks-terraform-jong"

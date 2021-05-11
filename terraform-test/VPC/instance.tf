@@ -6,6 +6,17 @@ resource "aws_instance" "instance_4_control" {
   iam_instance_profile = aws_iam_instance_profile.hello.name
   associate_public_ip_address = true
   
+  provisioner "file" {
+    source      = "script.sh"
+    description = "~/script.sh" 
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sh ~/script.sh"
+    ]
+  }
+
   network_interface {
     network_interface_id = aws_network_interface.network_interface.id
     device_index = 0
@@ -15,6 +26,7 @@ resource "aws_instance" "instance_4_control" {
       Name = "instance_4_control"
   }
 }
+
 
 resource "aws_iam_role" "iam_role" {
   name               = "role_4_control_instance"

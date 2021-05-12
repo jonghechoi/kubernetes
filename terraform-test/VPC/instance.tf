@@ -28,13 +28,22 @@ resource "aws_instance" "bastion_host" {
   instance_type         = "t2.micro"
   iam_instance_profile  = aws_iam_instance_profile.hello.name
   subnet_id             = aws_subnet.eks_pub_subnet[0].id
-  key_name              = aws_key_pair.terraform_key.id
-  # associate_public_ip_address = true
+  key_name              = "ec2-terraform-test"
+  associate_public_ip_address = true
   
   vpc_security_group_ids = [ aws_security_group.bastion_sg.id ]
   
+  connection {
+    type        = "ssh"
+    host        = self.public_ip
+    user        = "ubuntu"
+    private_key = file("${path.module}/ec2-terraform-test.pem")
+    timeout     = "2m"
+    agent       = false
+  }
+
   provisioner "file" {
-    source      = "./script/script_file.sh}"
+    source      = "./script/script_file.sh"
     destination = "~/script_file.sh" 
   }
 
@@ -52,10 +61,10 @@ resource "aws_instance" "bastion_host" {
 
 
 /*========= Bastion Host Key-pair =========*/
-resource "aws_key_pair" "terraform_key" {
-  key_name = "ec2-terraform-test"
-  public_key = "${file("./ec2-terraform-test.pub")}"
-}
+# resource "aws_key_pair" "terraform_key" {
+#   key_name   = "ec2-terraform-test"
+#   public_key = "${file("./ec2-terraform-test.pub")}"
+# }
 
 
 resource "aws_iam_role" "iam_role" {

@@ -1,8 +1,9 @@
 
 /*========= VPC =========*/
 provider "aws" {
-    region = "ap-northeast-2"
-  
+    access_key = "AKIAXU2NORFUOQ5PJYDY"
+    secret_key = "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"
+    region     = "ap-northeast-2"
 }
 
 resource "aws_vpc" "eks_test_vpc2" {

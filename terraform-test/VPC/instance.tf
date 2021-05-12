@@ -60,13 +60,6 @@ resource "aws_instance" "bastion_host" {
 }
 
 
-/*========= Bastion Host Key-pair =========*/
-# resource "aws_key_pair" "terraform_key" {
-#   key_name   = "ec2-terraform-test"
-#   public_key = "${file("./ec2-terraform-test.pub")}"
-# }
-
-
 resource "aws_iam_role" "iam_role" {
   name               = "role_4_control_instance"
 
@@ -91,10 +84,6 @@ EOF
 
 }
 
-# resource "aws_iam_role_policy" "iam_role_policy_attachment" {
-#     role = aws_iam_role.iam_role.name
-#     policy = data.aws_iam_policy_document.execute-api.json
-# }
 
 resource "aws_iam_role_policy" "bastion_iam_role_policy" {
     name   = "iam_role_policy_4_bastion"

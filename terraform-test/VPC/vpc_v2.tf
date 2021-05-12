@@ -1,8 +1,8 @@
 
 /*========= VPC =========*/
 provider "aws" {
-    access_key = "AKIAXU2NORFUOQ5PJYDY"
-    secret_key = "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"
+    access_key = "<my-access-key>"
+    secret_key = "<my-secret-key>"
     region     = "ap-northeast-2"
 }
 
@@ -153,7 +153,7 @@ module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name    = var.cluster_name
   cluster_version = "1.17"
-  subnets         = aws_subnet.eks_pri_subnet.*.id
+  subnets         = concat([aws_subnet.eks_pri_subnet.*.id],[aws_subnet.eks_pub_subnet.*.id])
   version = "12.2.0"
   cluster_create_timeout = "1h"
   cluster_endpoint_private_access = true 
@@ -163,10 +163,10 @@ module "eks" {
   worker_groups = [
     {
       name                          = "worker-group-1"
-      instance_type                 = "t2.small"
+      instance_type                 = "t2.micro"
       additional_userdata           = "echo foo bar"
       asg_desired_capacity          = 1
-      additional_security_group_ids = [aws_security_group.eks_test_sg_1.id]
+      additional_security_group_ids = [ aws_security_group.eks_test_sg_1.id ]
     },
   ]
 

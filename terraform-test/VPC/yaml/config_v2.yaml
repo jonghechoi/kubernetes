@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Config
+preferences: {}
+
+
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EVXhPREF6TlRZME0xb1hEVE14TURVeE5qQXpOVFkwTTFvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTHVvCkFGU0hRdlhyczM1a0kySEp0N3RlSTJpMTV2bzAzbU95WlpvQml6V1B4dnd0WCtYVmY3aWpSTnVlc3BjTm5GMkkKNUh4YmRoL2JyWU1HRHNnVXpMNGZKYlpyaHRJczFpTURvdEQ2cWMvdllwOFEzcFZzajNnNUE2S3l2KytiR2szNQpMaHF3ZFZHWGg3OHJGK0loTzZaUUJ4TjZrTTcvWlZ3QmcyZUVsdnp6czVMOStOUGprQS9Ndk9vVnJxUVpBOEt1CjkwWCtGVVRQQ0ZJdVM0b05pV1RvUlNUQXZvamRqQzJOV1BuTHo4K1J2eHA4QlpGbmU4bVpPSitramljUk00YnAKSEZXT0RNYUlMcGVVR2NWbzBHUFM2RSs2QUsrNktYRnZNeVkxaU5KZ2dNbm1TdjlwYkZqL1VOazdZOWhRVndwNwpLeWkrVnhhVG94Zm0yeEt6Z3E4Q0F3RUFBYU1qTUNFd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFLalRUdVJvTCs1eU4zS1hjeVlaYlRPbmNrazIKTERYU2NOTkhMYkMwOU51eG1xejlSVk9WQU5yWGZydnlna3EwRFZla2pzUTMwQ1FkNmVuRmp6ZHZIU2ZNN21aNwpmcjFMRFRrTWRlSzQvWUtIcFFsQmlJRkc3SXphY3JRVXQ3VHFURVJvNVpVQ1RLZE0yQnU4MjBiN3dVeWlxT01xCkx2eW9aUXc5WFB1S280aG5YUFJvVEpPZVhOdldUdEV0cmpFTWpWcy83Y2FlYndCMHRrT3NwVmNDajhpSFhqUk0KL3d1TkhsMjFhb0E0UjAxSnNQQ3BLWGdsV2JvaHR4S0JGTHI5TW5TUGp1cUw3MzBSYUhuZmhzcWh1ZjdEajhlaApIQ2YzY2xkWjVxTkI4ZDJwbmJMY2JUdGJFV1RKbjBiWWJnb3NmY0FkNlUzUVlPMTRtZnh1VmRKQmZ3cz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    server: https://D6CD3342528FAB1B6C18ADCD27B69FE0.yl4.ap-northeast-2.eks.amazonaws.com
+  name: arn:aws:eks:ap-northeast-2:525759056232:cluster/eks-terraform-jong
+
+
+users:
+- name: arn:aws:eks:ap-northeast-2:525759056232:cluster/eks-terraform-jong
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1alpha1
+      args:
+      - --region
+      - ap-northeast-2
+      - eks
+      - get-token
+      - --cluster-name
+      - eks-terraform-jong
+      command: aws
+
+
+contexts:
+- context:
+    cluster: arn:aws:eks:ap-northeast-2:525759056232:cluster/eks-terraform-jong
+    user: arn:aws:eks:ap-northeast-2:525759056232:cluster/eks-terraform-jong
+  name: arn:aws:eks:ap-northeast-2:525759056232:cluster/eks-terraform-jong
+
+
+current-context: arn:aws:eks:ap-northeast-2:525759056232:cluster/eks-terraform-jong
+
+
+
+

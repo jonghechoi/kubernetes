@@ -1,8 +1,6 @@
 
 /*========= VPC =========*/
 provider "aws" {
-    access_key = "AKIAXU2NORFUOQ5PJYDY"
-    secret_key = "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"
     region     = "ap-northeast-2"
 }
 
@@ -25,8 +23,11 @@ resource "aws_subnet" "eks_pub_subnet" {
 
     tags = {
         Name = "eks_pub_subnet_${count.index}"
+        "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+        "kubernetes.io/role/elb"                    = 1
     }
 }
+
 
 resource "aws_subnet" "eks_pri_subnet" {
     vpc_id            = aws_vpc.eks_test_vpc2.id
@@ -36,6 +37,8 @@ resource "aws_subnet" "eks_pri_subnet" {
 
     tags = {
         Name = "eks_pri_subnet_${count.index}"
+        "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+        "kubernetes.io/role/internal-elb"           = 1
     }
 }
 
@@ -51,27 +54,48 @@ resource "aws_internet_gateway" "eks_test_igw2" {
 
 
 /*========= NAT GATEWAY =========*/
+# ngw 1개 일떄
 resource "aws_eip" "nat_eip" {
-    count = length(var.availability_zone)
     vpc   = true
     lifecycle {
         create_before_destroy = true
     }
 
     tags = {
-        Name = "eks_test_eip_${element(var.availability_zone, count.index)}"
+        Name = "eks_test_ngw_eip"
     }
 }
+
 
 resource "aws_nat_gateway" "eks_test_ngw" {
-    count         = length(aws_eip.nat_eip.*.id)
-    allocation_id = element(aws_eip.nat_eip.*.id, count.index)
-    subnet_id     = element(aws_subnet.eks_pub_subnet.*.id, count.index)
+    allocation_id = aws_eip.nat_eip.id
+    subnet_id     = aws_subnet.eks_pub_subnet[0].id
 
     tags = {
-      Name = "eks_test_ngw_${element(var.availability_zone, count.index)}"
+      Name = "eks_test_ngw"
     }
 }
+# ngw 2개 일때
+# resource "aws_eip" "nat_eip" {
+#     count = length(var.availability_zone)
+#     vpc   = true
+#     lifecycle {
+#         create_before_destroy = true
+#     }
+
+#     tags = {
+#         Name = "eks_test_eip_${element(var.availability_zone, count.index)}"
+#     }
+# }
+# resource "aws_nat_gateway" "eks_test_ngw" {
+#     count         = length(aws_eip.nat_eip.*.id)
+#     allocation_id = element(aws_eip.nat_eip.*.id, count.index)
+#     subnet_id     = element(aws_subnet.eks_pub_subnet.*.id, count.index)
+
+#     tags = {
+#       Name = "eks_test_ngw_${element(var.availability_zone, count.index)}"
+#     }
+# }
 
 
 /*========= ROUTE TABLE =========*/
@@ -81,11 +105,13 @@ resource "aws_route_table" "eks_test_pub_route2" {
     vpc_id = aws_vpc.eks_test_vpc2.id    
 }
 
+
 resource "aws_route_table_association" "route_table_association_1" {
     count          = length(var.availability_zone)
     subnet_id      = element(aws_subnet.eks_pub_subnet.*.id, count.index)
     route_table_id = element(aws_route_table.eks_test_pub_route2.*.id, count.index)
 }
+
 
 resource "aws_route" "public_igw2" {
     count                  = length(var.availability_zone)
@@ -105,18 +131,28 @@ resource "aws_route_table" "eks_test_pri_route2" {
     }
 }
 
+
 resource "aws_route_table_association" "route_table_association_2" {
     count          = length(var.availability_zone)
     subnet_id      = element(aws_subnet.eks_pri_subnet.*.id, count.index)
     route_table_id = element(aws_route_table.eks_test_pri_route2.*.id, count.index)
 }
 
+
+# ngw 1개 일때
 resource "aws_route" "private_ngw2" {
     count          = length(var.availability_zone)
     route_table_id = element(aws_route_table.eks_test_pri_route2.*.id, count.index)
-    gateway_id     = element(aws_nat_gateway.eks_test_ngw.*.id, count.index)
+    gateway_id     = aws_nat_gateway.eks_test_ngw.id
     destination_cidr_block = "0.0.0.0/0"
 }
+# ngw 2개 일떄
+# resource "aws_route" "private_ngw2" {
+#     count          = length(var.availability_zone)
+#     route_table_id = element(aws_route_table.eks_test_pri_route2.*.id, count.index)
+#     gateway_id     = element(aws_nat_gateway.eks_test_ngw.*.id, count.index)
+#     destination_cidr_block = "0.0.0.0/0"
+# }
 
 
 /*========= SECURITY GROUP =========*/
@@ -145,9 +181,11 @@ data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
 }
 
+
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_id
 }
+
 
 module "eks" {
   source       = "terraform-aws-modules/eks/aws"
@@ -165,8 +203,11 @@ module "eks" {
       name                          = "worker-group-1"
       instance_type                 = "t2.small"
       additional_userdata           = "echo foo bar"
-      asg_desired_capacity          = 1
-      additional_security_group_ids = [aws_security_group.eks_test_sg_1.id]
+      asg_desired_capacity          = 2
+      additional_security_group_ids = [ 
+        aws_security_group.eks_test_sg_1.id, 
+        aws_security_group.bastion_sg.id 
+      ]
     },
   ]
 
@@ -176,6 +217,7 @@ module "eks" {
 #   map_accounts                         = var.map_accounts
 }
 
+
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
@@ -183,14 +225,3 @@ provider "kubernetes" {
   load_config_file       = false
   version                = "~> 1.9"
 }
-
-
-
-
-
-
-
-
-
-
-

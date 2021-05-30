@@ -23,6 +23,7 @@ resource "aws_security_group" "bastion_sg" {
   }
 }
 
+
 resource "aws_instance" "bastion_host" {
   ami                   = "ami-0ba348d1c903e5d48"
   instance_type         = "t2.micro"
@@ -30,6 +31,10 @@ resource "aws_instance" "bastion_host" {
   subnet_id             = aws_subnet.eks_pub_subnet[0].id
   key_name              = "ec2-terraform-test"
   associate_public_ip_address = true
+
+  depends_on = [
+    aws_iam_instance_profile.hello
+  ]
   
   vpc_security_group_ids = [ aws_security_group.bastion_sg.id ]
   
@@ -77,7 +82,8 @@ resource "aws_iam_role" "iam_role" {
         {
             "Effect": "Allow",
             "Principal": {
-              "Service": "ec2.amazonaws.com"
+              "Service": "ec2.amazonaws.com",
+              "AWS": "arn:aws:iam::525759056232:user/terraform-jong"
             },
             "Action": "sts:AssumeRole"
         }
@@ -90,6 +96,7 @@ EOF
   }
 
 }
+
 
 # resource "aws_iam_role_policy" "iam_role_policy_attachment" {
 #     role = aws_iam_role.iam_role.name
@@ -117,10 +124,26 @@ resource "aws_iam_role_policy" "bastion_iam_role_policy" {
 EOF   
 }
 
+
 /*========= IAM instance profile =========*/
 resource "aws_iam_instance_profile" "hello" {
   name = "instance_4_control_profile"
   role = aws_iam_role.iam_role.name
 }
 
+
+/*========= customizing sg rule for bastion host=========*/
+resource "aws_security_group_rule" "bastion_host_access"{
+  count                    = 1
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+
+  # security_group_id        = aws_eks_cluster.this[0].vpc_config[0].cluster_security_group_id
+  security_group_id        = module.eks.sg_4_bastion_host
+  source_security_group_id = aws_security_group.bastion_sg.id
+
+  description              = "Allow bastion host to communicate with the EKS cluster API."
+}
 

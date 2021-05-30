@@ -65,13 +65,6 @@ resource "aws_instance" "bastion_host" {
 }
 
 
-/*========= Bastion Host Key-pair =========*/
-# resource "aws_key_pair" "terraform_key" {
-#   key_name   = "ec2-terraform-test"
-#   public_key = "${file("./ec2-terraform-test.pub")}"
-# }
-
-
 resource "aws_iam_role" "iam_role" {
   name               = "role_4_control_instance"
 

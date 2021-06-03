@@ -26,10 +26,10 @@ resource "aws_security_group" "jenkins_server_sg" {
 
 resource "aws_instance" "jenkins_server" {
   ami                   = "ami-0ba348d1c903e5d48"
-  instance_type         = "t3.small"
+  instance_type         = "t2.small"
   iam_instance_profile  = aws_iam_instance_profile.jenkins_server_profile.name
   subnet_id             = aws_subnet.eks_pri_subnet[0].id
-  key_name              = "EKS-TEST-KEY.pem"
+  key_name              = "ec2-terraform-test"
 #   associate_public_ip_address = true
 
   depends_on = [

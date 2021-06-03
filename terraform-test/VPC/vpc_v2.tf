@@ -191,7 +191,7 @@ module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name    = var.cluster_name
   cluster_version = "1.17"
-  subnets         = concat([aws_subnet.eks_pri_subnet.*.id],[aws_subnet.eks_pub_subnet.*.id])
+  subnets         = concat(aws_subnet.eks_pri_subnet.*.id, aws_subnet.eks_pub_subnet.*.id)
   version = "12.2.0"
   cluster_create_timeout = "1h"
   cluster_endpoint_private_access = true 

@@ -42,7 +42,7 @@ resource "aws_instance" "bastion_host" {
     type        = "ssh"
     host        = self.public_ip
     user        = "ubuntu"
-    private_key = file("${path.module}/ec2-terraform-test.pem")
+    private_key = file("${path.module}/pem-key/ec2-terraform-test.pem")
     timeout     = "2m"
     agent       = false
   }
@@ -57,6 +57,11 @@ resource "aws_instance" "bastion_host" {
       "chmod +x ~/script_file.sh",
       "sh ~/script_file.sh ${var.region} ${var.cluster_name}"
     ]
+  }
+
+  provisioner "file" {
+    source      = "./pem-key/EKS-TEST-KEY.pem"
+    destination = "~/EKS-TEST-KEY.pem"    
   }
 
   tags = {

@@ -202,8 +202,11 @@ module "eks" {
     {
       name                          = "worker-group-1"
       instance_type                 = "t2.small"
+      root_volume_size              = "20"
+      root_volume_type              = "gp2"
+      ebs_optimized_not_supported   = false
       additional_userdata           = "echo foo bar"
-      asg_desired_capacity          = 2
+      asg_desired_capacaity          = 2
       additional_security_group_ids = [ 
         aws_security_group.eks_test_sg_1.id, 
         aws_security_group.bastion_sg.id 

@@ -1,0 +1,22 @@
+
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-example
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: sosinnmi.example.com                  
+    http:
+      paths:
+      - path: /haha                  
+        backend:
+          serviceName: wordpress
+          servicePort: 80
+
+
+

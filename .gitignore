@@ -1,0 +1,5 @@
+terraform-test/VPC/.terraform/
+terraform-test/VPC/terraform.tfstate
+terraform-test/VPC/terraform.tfstate.backup
+
+

@@ -130,8 +130,8 @@ resource "aws_security_group_rule" "bastion_host_access_to_jenkins_server"{
   protocol                 = "tcp"
 
   # security_group_id        = aws_eks_cluster.this[0].vpc_config[0].cluster_security_group_id
-  security_group_id        = aws_security_group.bastion_sg.id
-  source_security_group_id = aws_security_group.jenkins_server_sg.id
+  security_group_id        = aws_security_group.jenkins_server_sg.id
+  source_security_group_id = aws_security_group.bastion_sg.id
 
   description              = "Allow jenkins server to communicate with the bastion host only"
 }

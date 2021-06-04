@@ -202,8 +202,6 @@ module "eks" {
     {
       name                          = "worker-group-1"
       instance_type                 = "t2.small"
-      root_volume_size              = "20"
-      root_volume_type              = "gp2"
       ebs_optimized_not_supported   = false
       additional_userdata           = "echo foo bar"
       asg_desired_capacaity          = 2
